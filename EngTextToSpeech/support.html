@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support - Repeat Reader: Text to Speech</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    a {
+      color: #007aff;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      color: color-mix(in srgb, CanvasText 55%, transparent);
+      margin-top: 0;
+    }
+
+    /* Contact card — intentionally placed right under the title, above the guide. */
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 28px;
+      align-items: center;
+      margin: 24px 0 40px;
+      padding: 16px 20px;
+      border: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+      border-radius: 12px;
+      background: color-mix(in srgb, CanvasText 4%, transparent);
+    }
+
+    .contact strong {
+      display: block;
+      font-size: 0.95em;
+    }
+
+    .contact .value {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: color-mix(in srgb, CanvasText 60%, transparent);
+      font-size: 0.9em;
+    }
+
+    .contact a.button {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #007aff;
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+
+    /* Icons — line style approximating the SF Symbols used in the app, accent-colored like
+       the app's `.foregroundStyle(.blue)` guide icons. */
+    .icon {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      vertical-align: -0.15em;
+      flex-shrink: 0;
+    }
+
+    .icon-accent {
+      color: #007aff;
+    }
+
+    /* Round chip background behind an icon, like iOS's reload/refresh button. */
+    .icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: color-mix(in srgb, CanvasText 10%, Canvas 90%);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .icon-badge .icon {
+      width: 15px;
+      height: 15px;
+      margin-top: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      width: 22px;
+      height: 22px;
+    }
+
+    nav.tree .icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .row .icon {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+
+    .row-content strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .row-content p {
+      margin: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* Tree navigation */
+    nav.tree {
+      position: sticky;
+      top: 24px;
+      font-size: 0.92em;
+      border-right: 1px solid color-mix(in srgb, CanvasText 12%, transparent);
+      padding-right: 20px;
+    }
+
+    nav.tree ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    nav.tree > ul > li {
+      margin-bottom: 14px;
+    }
+
+    nav.tree > ul > li > a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      color: CanvasText;
+    }
+
+    nav.tree ul ul {
+      margin-top: 6px;
+      padding-left: 16px;
+      border-left: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+    }
+
+    nav.tree ul ul li {
+      margin: 6px 0;
+    }
+
+    nav.tree ul ul a {
+      text-decoration: none;
+      color: color-mix(in srgb, CanvasText 65%, transparent);
+    }
+
+    nav.tree a:hover {
+      color: #007aff;
+    }
+
+    main h2 {
+      margin-top: 0;
+      padding-top: 8px;
+      scroll-margin-top: 20px;
+    }
+
+    main section {
+      margin-bottom: 44px;
+    }
+
+    main section section {
+      margin-bottom: 24px;
+      margin-left: 4px;
+      padding-left: 16px;
+      border-left: 2px solid color-mix(in srgb, CanvasText 10%, transparent);
+    }
+
+    main h3 {
+      scroll-margin-top: 20px;
+      margin-bottom: 12px;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid color-mix(in srgb, CanvasText 12%, transparent);
+      font-size: 0.9em;
+      color: color-mix(in srgb, CanvasText 55%, transparent);
+    }
+
+    @media (max-width: 720px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav.tree {
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+        padding-right: 0;
+        padding-bottom: 16px;
+        margin-bottom: 8px;
+      }
+
+      .contact a.button {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Icon sprite — hand-drawn line icons approximating the SF Symbols used throughout the app. -->
+  <svg style="display:none" aria-hidden="true">
+    <defs>
+      <symbol id="i-doc-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h4M4 4v4M20 4h-4M20 4v4M4 20h4M4 20v-4M20 20h-4M20 20v-4"/>
+        <rect x="8" y="7" width="8" height="10" rx="1"/>
+        <line x1="10" y1="10" x2="14" y2="10"/>
+        <line x1="10" y1="13" x2="14" y2="13"/>
+      </symbol>
+      <symbol id="i-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+      </symbol>
+      <symbol id="i-chevron-lr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 7l-5 5 5 5"/>
+        <path d="M14 7l5 5-5 5"/>
+      </symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 7h14"/>
+        <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        <path d="M7 7l1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/>
+        <line x1="10" y1="11" x2="10" y2="16"/>
+        <line x1="14" y1="11" x2="14" y2="16"/>
+      </symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/>
+        <line x1="14" y1="7" x2="17" y2="10"/>
+      </symbol>
+      <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M10 8l6 4-6 4V8z" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15.3 6.3a7.5 7.5 0 1 0 4.2 7.7"/>
+        <polyline points="12,2.8 15.3,6.3 12,9.2"/>
+      </symbol>
+      <symbol id="i-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9V7a3 3 0 0 1 3-3h9"/>
+        <path d="M15 1l3 3-3 3"/>
+        <path d="M18 15v2a3 3 0 0 1-3 3H6"/>
+        <path d="M9 23l-3-3 3-3"/>
+      </symbol>
+      <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2"/>
+        <line x1="12" y1="8" x2="12" y2="14"/>
+        <path d="M9 12l3 3 3-3"/>
+      </symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <circle cx="15" cy="12" r="2" fill="currentColor" stroke="none"/>
+        <line x1="4" y1="18" x2="20" y2="18"/>
+        <circle cx="11" cy="18" r="2" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-coin" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <circle cx="9" cy="12" r="7" opacity="0.9"/>
+        <circle cx="15" cy="12" r="7" opacity="0.55"/>
+      </symbol>
+      <symbol id="i-books" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="4" height="18" rx="1"/>
+        <rect x="10" y="3" width="4" height="18" rx="1"/>
+        <rect x="16" y="5" width="4" height="16" rx="1" transform="rotate(8 18 13)"/>
+      </symbol>
+      <symbol id="i-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 6c-1.5-1.2-3.5-2-6-2-1 0-1.7.1-2 .2V17c.3-.1 1-.2 2-.2 2.5 0 4.5.8 6 2 1.5-1.2 3.5-2 6-2 1 0 1.7.1 2 .2V4.2c-.3-.1-1-.2-2-.2-2.5 0-4.5.8-6 2z"/>
+        <line x1="12" y1="6" x2="12" y2="19"/>
+      </symbol>
+      <symbol id="i-play-rect" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M10 9l6 3-6 3V9z" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="12" y1="11" x2="12" y2="16"/>
+        <circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-seal-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M8 12.3l2.6 2.6L16 9.5"/>
+      </symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11l8-8h6a2 2 0 0 1 2 2v6l-8 8a2 2 0 0 1-3 0l-5-5a2 2 0 0 1 0-3z"/>
+        <circle cx="15" cy="9" r="1.3" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </symbol>
+      <symbol id="i-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 4v6h6"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </symbol>
+      <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <circle cx="8" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M9.3 9.2a2.7 2.7 0 1 1 3.8 2.5c-.9.4-1.1 1-1.1 1.8"/>
+        <circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6-5.4-3-5.4 3 1.2-6-4.4-4.1 6-.7z"/>
+      </symbol>
+      <symbol id="i-doc-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="3" width="14" height="18" rx="2"/>
+        <line x1="8" y1="8" x2="16" y2="8"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="8" y1="16" x2="13" y2="16"/>
+      </symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M3 6l9 7 9-7"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="wrap">
+    <h1>Support</h1>
+    <p class="tagline">Repeat Reader: Text to Speech</p>
+
+    <div class="contact">
+      <div>
+        <strong>Need help?</strong>
+        <span class="value">We usually reply within 1–2 days.</span>
+      </div>
+      <div>
+        <strong>Email</strong>
+        <span class="value">
+          <svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>
+          <a href="mailto:maihuuchung@gmail.com">maihuuchung@gmail.com</a>
+        </span>
+      </div>
+      <a class="button" href="mailto:maihuuchung@gmail.com?subject=Repeat%20Reader%20Support">
+        <svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>
+        Contact Support
+      </a>
+    </div>
+
+    <div class="layout">
+      <nav class="tree" aria-label="Support topics">
+        <ul>
+          <li>
+            <a href="#reader"><svg class="icon" aria-hidden="true"><use href="#i-doc-scan"/></svg>Reader</a>
+            <ul>
+              <li><a href="#getting-started">Getting started</a></li>
+              <li><a href="#pages">Pages</a></li>
+              <li><a href="#playback">Playback</a></li>
+              <li><a href="#repeat">Repeat</a></li>
+              <li><a href="#save-settings">Save &amp; Settings</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#library"><svg class="icon" aria-hidden="true"><use href="#i-books"/></svg>Library</a>
+            <ul>
+              <li><a href="#library-open">Opening a saved document</a></li>
+              <li><a href="#library-delete">Deleting a document</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#earn-coins"><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg>Earn Coins</a>
+            <ul>
+              <li><a href="#coins-how">How coins work</a></li>
+              <li><a href="#coins-earn">Earning more</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#pro"><svg class="icon" aria-hidden="true"><use href="#i-seal-check"/></svg>Pro</a>
+            <ul>
+              <li><a href="#pro-plans">Plans &amp; pricing</a></li>
+              <li><a href="#pro-manage">Manage or cancel</a></li>
+              <li><a href="#pro-restore">Restore purchases</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#more-tab"><svg class="icon" aria-hidden="true"><use href="#i-more"/></svg>More Tab</a>
+            <ul>
+              <li><a href="#more-guide">User Guide</a></li>
+              <li><a href="#more-voice">Voice Setting</a></li>
+              <li><a href="#more-rate">Rate the App</a></li>
+              <li><a href="#more-legal">Terms &amp; Privacy</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <main>
+        <section id="reader">
+          <h2 class="section-title"><svg class="icon icon-accent" aria-hidden="true"><use href="#i-doc-scan"/></svg>Reader</h2>
+
+          <section id="getting-started">
+            <h3>Getting started</h3>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-doc-scan"/></svg>
+              <div class="row-content">
+                <strong>Import a document</strong>
+                <p>Tap Scan, File, or Photos at the top of the Reader to bring in text: scan pages with the camera, pick a PDF or image file, or choose photos from your library. You can also type or paste text directly into the box.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-x-circle"/></svg>
+              <div class="row-content">
+                <strong>Remove the document</strong>
+                <p>Tap the X next to the document's name to clear it and start over. If it isn't saved to your Library yet, this loses it for good, so you'll be asked to confirm.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="pages">
+            <h3>Pages</h3>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-chevron-lr"/></svg>
+              <div class="row-content">
+                <strong>Move between pages</strong>
+                <p>For documents with more than one page, the header above the text shows PAGE X OF Y. Use the arrows to move to the previous or next page.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-trash"/></svg>
+              <div class="row-content">
+                <strong>Remove a page</strong>
+                <p>The trash icon in the page header deletes just the page you're currently viewing — useful for a title page, a footnote, or a scan that came out garbled. It won't be included when you save.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-pencil"/></svg>
+              <div class="row-content">
+                <strong>Edit the text</strong>
+                <p>Tap into the text box to fix anything before reading it — a typo the scanner introduced, or a line you'd rather skip.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="playback">
+            <h3>Playback</h3>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-play"/></svg>
+              <div class="row-content">
+                <strong>Speak, Pause, Resume</strong>
+                <p>The main button starts reading the page aloud. While it's playing, the same button pauses it; tap it again to resume from where you left off. The sentence being read is highlighted as it goes.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-stop"/></svg>
+              <div class="row-content">
+                <strong>Stop</strong>
+                <p>Ends the current pass completely, rather than just pausing it.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <span class="icon-badge"><svg class="icon icon-accent"><use href="#i-refresh"/></svg></span>
+              <div class="row-content">
+                <strong>Resynthesize audio</strong>
+                <p>If a page's audio ever comes out with a distorted voice, this regenerates it from scratch for just that page — free, and it doesn't cost a coin.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="repeat">
+            <h3>Repeat</h3>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-repeat"/></svg>
+              <div class="row-content">
+                <p><strong>Off</strong> stops after one read-through. <strong>Page</strong> repeats the page you're on — handy for practicing pronunciation or memorizing just a few sentences without listening to a whole recording again. <strong>All</strong> moves on to the next page when one finishes, wrapping back to the first page after the last — handy for listening straight through a whole document.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="save-settings">
+            <h3>Save &amp; Settings</h3>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-save"/></svg>
+              <div class="row-content">
+                <strong>Save to Library</strong>
+                <p>Saves the document on screen — including any edits — so you can come back to it later from the Library tab.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-sliders"/></svg>
+              <div class="row-content">
+                <strong>Voice Setting</strong>
+                <p>Choose the voice, tone, and reading speed. Changing one plays a short preview automatically so you can hear it before committing.</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-coin"/></svg>
+              <div class="row-content">
+                <strong>Coins</strong>
+                <p>Each read costs coins, shown in the top corner. Visit Earn Coins to top up, or watch an ad when you run out.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="library">
+          <h2 class="section-title"><svg class="icon icon-accent" aria-hidden="true"><use href="#i-books"/></svg>Library</h2>
+
+          <section id="library-open">
+            <h3>Opening a saved document</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-book-open"/></svg>
+              <div class="row-content">
+                <p>The Library tab lists every document you've saved from the Reader, with a cover thumbnail, a text preview, and the page count or character count plus the date it was saved. Tap any item to reopen it in the Reader.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="library-delete">
+            <h3>Deleting a document</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-trash"/></svg>
+              <div class="row-content">
+                <p>Swipe left on an item and tap Delete to remove it from your Library. This only removes the saved copy — it doesn't affect coins or your subscription.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="earn-coins">
+          <h2 class="section-title"><svg class="icon icon-accent" aria-hidden="true"><use href="#i-coin"/></svg>Earn Coins</h2>
+
+          <section id="coins-how">
+            <h3>How coins work</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-info"/></svg>
+              <div class="row-content">
+                <p>Coins pay for reading. Each read or repeat costs a small number of coins, and your balance is always shown at the top of the Earn Coins screen. Pro subscribers don't spend coins at all — reading is unlimited.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="coins-earn">
+            <h3>Earning more</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-play-rect"/></svg>
+              <div class="row-content">
+                <p>Tap "Watch an ad" and watch it to the end to receive coins immediately. If no ad is ready, wait a moment for one to load, or switch to a Pro subscription to remove the need for coins entirely.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="pro">
+          <h2 class="section-title"><svg class="icon icon-accent" aria-hidden="true"><use href="#i-seal-check"/></svg>Pro</h2>
+
+          <section id="pro-plans">
+            <h3>Plans &amp; pricing</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-tag"/></svg>
+              <div class="row-content">
+                <p>Pro is offered as a Monthly ($2.99/month) or Yearly ($29.99/year) subscription. Pick a plan on the Pro screen and tap Subscribe; the price shown for your region is confirmed by the App Store before you're charged.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="pro-manage">
+            <h3>Manage or cancel</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-gear"/></svg>
+              <div class="row-content">
+                <p>Subscriptions are billed through your Apple ID and renew automatically unless cancelled at least 24 hours before the period ends. Manage or cancel anytime from Settings › Apple Account › Subscriptions on your device.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="pro-restore">
+            <h3>Restore purchases</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-restore"/></svg>
+              <div class="row-content">
+                <p>Already subscribed on another device? Open the Pro screen and tap Restore Purchases to bring your subscription back on this one.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="more-tab">
+          <h2 class="section-title"><svg class="icon icon-accent" aria-hidden="true"><use href="#i-more"/></svg>More Tab</h2>
+
+          <section id="more-guide">
+            <h3>User Guide</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-help"/></svg>
+              <div class="row-content">
+                <p>An in-app walkthrough of every control on the Reader screen, grouped the same way they're laid out on screen.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="more-voice">
+            <h3>Voice Setting</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-sliders"/></svg>
+              <div class="row-content">
+                <p>Also reachable from here — the same voice, tone, and speed controls described under Reader › Save &amp; Settings.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="more-rate">
+            <h3>Rate the App</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-star"/></svg>
+              <div class="row-content">
+                <p>Opens the App Store review screen for Repeat Reader. Ratings help other learners find the app.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="more-legal">
+            <h3>Terms &amp; Privacy</h3>
+            <div class="row">
+              <svg class="icon icon-accent"><use href="#i-doc-text"/></svg>
+              <div class="row-content">
+                <p>Links to the <a href="./terms.html">Terms of Use</a> and <a href="./privacy.html">Privacy Policy</a>, plus the app's current version and build number.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <p>Still stuck? Email <a href="mailto:maihuuchung@gmail.com">maihuuchung@gmail.com</a> and include your app version, found under More.</p>
+    </footer>
+  </div>
+</body>
+</html>
